@@ -6,6 +6,7 @@ import (
 	"github.com/initialed85/quotanizer/pkg/quota"
 	"log"
 	"strconv"
+	"time"
 )
 
 type flagArrayString []string
@@ -45,6 +46,7 @@ func main() {
 	flag.Var(&paths, "path", "a path for applying a quota")
 	flag.Var(&quotaSizes, "quota", "a quota to apply (in gigabytes)")
 	flag.Var(&suffixes, "suffix", "a suffix to filter by")
+	period := flag.Int64("period", 60, "period to cycle at")
 
 	flag.Parse()
 
@@ -70,17 +72,34 @@ func main() {
 		quotas = append(quotas, quota.New(paths[i], suffixes, q*1e+9))
 	}
 
-	for _, q := range quotas {
-		err := q.Walk()
-		if err != nil {
-			log.Fatal(err)
-		}
+	ticker := time.NewTicker(time.Second * time.Duration(*period))
+	done := make(chan bool)
 
-		files := q.Candidates()
+	log.Printf("cycling at %v seconds", *period)
 
-		err = q.Delete(files)
-		if err != nil {
-			log.Fatal(err)
+	go func() {
+		for {
+			select {
+			case <-done:
+				return
+			case _ = <-ticker.C:
+				log.Printf("iterating")
+				for _, q := range quotas {
+					err := q.Walk()
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					files := q.Candidates()
+
+					err = q.Delete(files)
+					if err != nil {
+						log.Fatal(err)
+					}
+				}
+			}
 		}
-	}
+	}()
+
+	<-done
 }

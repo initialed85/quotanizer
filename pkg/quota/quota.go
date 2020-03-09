@@ -26,6 +26,8 @@ func New(path string, suffixes []string, quota int64) Quota {
 }
 
 func (q *Quota) Walk() error {
+	log.Printf("walking '%v'", q.path)
+
 	files, err := q.quotaWalker.Walk()
 	if err != nil {
 		return err
