@@ -58,7 +58,7 @@ func (q *Quota) Candidates() []file.File {
 	return files
 }
 
-func (q *Quota) Delete(files []file.File) error {
+func (q *Quota) Delete(files []file.File) {
 	log.Printf(
 		"deleting %v files at '%v' totalling %v GB",
 		len(files),
@@ -71,9 +71,9 @@ func (q *Quota) Delete(files []file.File) error {
 
 		err := f.Delete()
 		if err != nil {
-			return err
+			log.Printf("warning: failed to delete %v because %v", f.FilePath, err)
+
+			continue
 		}
 	}
-
-	return nil
 }

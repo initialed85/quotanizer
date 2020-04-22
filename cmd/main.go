@@ -43,6 +43,8 @@ var quotaSizes flagArrayInt64
 var suffixes flagArrayString
 
 func main() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
+
 	flag.Var(&paths, "path", "a path for applying a quota")
 	flag.Var(&quotaSizes, "quota", "a quota to apply (in gigabytes)")
 	flag.Var(&suffixes, "suffix", "a suffix to filter by")
@@ -92,10 +94,7 @@ func main() {
 
 					files := q.Candidates()
 
-					err = q.Delete(files)
-					if err != nil {
-						log.Fatal(err)
-					}
+					q.Delete(files)
 				}
 			}
 		}
