@@ -71,7 +71,7 @@ func (q *Quota) Delete(files []file.File) {
 
 		err := f.Delete()
 		if err != nil {
-			log.Printf("warning: failed to delete %v because %v", f.FilePath, err)
+			log.Printf("warning: failed to delete %v because %v; skipping", f.FilePath, err)
 
 			continue
 		}

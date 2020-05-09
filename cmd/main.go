@@ -89,7 +89,9 @@ func main() {
 				for _, q := range quotas {
 					err := q.Walk()
 					if err != nil {
-						log.Fatal(err)
+						log.Printf("failed to walk because %v; skipping this quote for this iteration", err)
+
+						continue
 					}
 
 					files := q.Candidates()
